@@ -1,3 +1,5 @@
+using backend.WhereToGo.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
@@ -15,6 +17,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<IPlaceService, PlaceService>();
 
 var app = builder.Build();
 
