@@ -1,4 +1,9 @@
-﻿using backend.WhereToGo.Api.Models;
+﻿using backend.WhereToGo.Api.Data;
+using backend.WhereToGo.Api.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace backend.WhereToGo.Api.Services
 {
@@ -7,61 +12,37 @@ namespace backend.WhereToGo.Api.Services
         Task<IEnumerable<Place>> GetAllAsync();
         Task<Place?> GetByIdAsync(int id);
         Task<Place> AddAsync(Place place);
-        // add update/ delete method later
+        // Add update/delete methods later
     }
 
     public class PlaceService : IPlaceService
     {
-        private readonly List<Place> _places = new()
-        {
-            new Place
-            {
-                Id = 1,
-                Name = "Central Perk Cafe",
-                City = "New York",
-                Country = "USA",
-                Address = "90 Bedford St, New York, NY",
-                Description = "Cozy cafe famous from Friends TV show",
-                Latitude = 40.732013,
-                Longitude = -74.005122,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            },
-            new Place
-            {
-                Id = 2,
-                Name = "Le Petit Bistro",
-                City = "Paris",
-                Country = "France",
-                Address = "15 Rue Cler, 75007 Paris",
-                Description = "Authentic French bistro with a great wine selection",
-                Latitude = 48.8556,
-                Longitude = 2.3045,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            }
-        };
+        private readonly WhereToGoDbContext _dbContext;
 
-        public Task<IEnumerable<Place>> GetAllAsync()
+        public PlaceService(WhereToGoDbContext dbContext)
         {
-            return Task.FromResult(_places.AsEnumerable());
+            _dbContext = dbContext;
         }
 
-        public Task<Place?> GetByIdAsync(int id)
+        public async Task<IEnumerable<Place>> GetAllAsync()
         {
-            var place = _places.First(p => p.Id == id);
-            return Task.FromResult(place);
+            return await _dbContext.Places.AsNoTracking().ToListAsync();
         }
 
-        public Task<Place> AddAsync(Place place)
+        public async Task<Place?> GetByIdAsync(int id)
         {
-            var nextId = _places.Any() ? _places.Max(p => p.Id) + 1 : 1;
-            place.Id = nextId;
+            return await _dbContext.Places.AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<Place> AddAsync(Place place)
+        {
             place.CreatedAt = DateTime.UtcNow;
             place.UpdatedAt = DateTime.UtcNow;
-            _places.Add(place);
-            return Task.FromResult(place);
-        }
 
+            _dbContext.Places.Add(place);
+            await _dbContext.SaveChangesAsync();
+            return place;
+        }
     }
 }

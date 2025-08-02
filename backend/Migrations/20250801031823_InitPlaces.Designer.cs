@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backend.WhereToGo.Api.Data;
@@ -10,10 +11,12 @@ using backend.WhereToGo.Api.Data;
 
 namespace backend.Migrations
 {
-    [DbContext(typeof(PlacesDbContext))]
-    partial class PlacesDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(WhereToGoDbContext))]
+    [Migration("20250801031823_InitPlaces")]
+    partial class InitPlaces
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

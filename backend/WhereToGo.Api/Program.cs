@@ -18,11 +18,12 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddDbContext<PlacesDbContext>(options =>
+builder.Services.AddDbContext<WhereToGoDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<IPlaceService, PlaceService>();
+//builder.Services.AddHttpClient<IPlaceService, SupabasePlaceService>();
 
 var app = builder.Build();
 
