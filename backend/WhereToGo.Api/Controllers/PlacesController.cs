@@ -42,7 +42,34 @@ namespace backend.WhereToGo.Api.Controllers
             }
 
             var created = await _placeService.AddAsync(place);
-            return CreatedAtAction(nameof(GetById), new {id = created.Id}, created);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var deleted = await _placeService.DeleteAsync(id);
+            if (!deleted)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<Place>> Update(int id, [FromBody] Place place)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var updated = await _placeService.UpdateAsync(id, place);
+            if (updated == null)
+            {
+                return NotFound();
+            }
+            return Ok(updated);
         }
     }
 }

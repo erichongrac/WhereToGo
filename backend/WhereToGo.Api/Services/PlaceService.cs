@@ -12,7 +12,8 @@ namespace backend.WhereToGo.Api.Services
         Task<IEnumerable<Place>> GetAllAsync();
         Task<Place?> GetByIdAsync(int id);
         Task<Place> AddAsync(Place place);
-        // Add update/delete methods later
+        Task<bool> DeleteAsync(int id);
+        Task<Place?> UpdateAsync(int id, Place place);
     }
 
     public class PlaceService : IPlaceService
@@ -40,9 +41,37 @@ namespace backend.WhereToGo.Api.Services
             place.CreatedAt = DateTime.UtcNow;
             place.UpdatedAt = DateTime.UtcNow;
 
-            _dbContext.Places.Add(place);
+            await _dbContext.Places.AddAsync(place);
             await _dbContext.SaveChangesAsync();
             return place;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var place = await _dbContext.Places.FindAsync(id);
+            if (place == null) return false;
+
+            _dbContext.Places.Remove(place);
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<Place?> UpdateAsync(int id, Place place)
+        {
+            var existing = await _dbContext.Places.FindAsync(id);
+            if (existing == null) return null;
+
+            existing.Name = place.Name;
+            existing.City = place.City;
+            existing.Country = place.Country;
+            existing.Address = place.Address;
+            existing.Description = place.Description;
+            existing.Latitude = place.Latitude;
+            existing.Longitude = place.Longitude;
+            existing.UpdatedAt = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
+            return existing;
         }
     }
 }
