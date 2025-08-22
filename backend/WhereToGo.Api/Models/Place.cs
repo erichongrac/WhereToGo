@@ -27,10 +27,10 @@ namespace backend.WhereToGo.Api.Models
         public string? Description { get; set; }
 
         [Column("latitude")]
-        public double Latitude { get; set; }
+        public double? Latitude { get; set; }
 
         [Column("longitude")]
-        public double Longitude { get; set; }
+        public double? Longitude { get; set; }
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
