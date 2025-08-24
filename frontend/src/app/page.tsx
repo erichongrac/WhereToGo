@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import PlaceList from "../components/Places/PlaceList";
-import ConfirmModal from "../components/Places/ConfirmModal";
+
 import { Place } from "../types";
+import PlaceList from "@/components/Places/PlaceList";
+import ConfirmModal from "@/components/Places/ConfirmModal";
+import UpdateModal from "@/components/Places/UpdateModal";
 
 export default function Home() {
   const [places, setPlaces] = useState<Place[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
 
   useEffect(() => {
@@ -23,7 +26,7 @@ export default function Home() {
 
   const handleDeleteClick = (place: Place) => {
     setSelectedPlace(place);
-    setShowModal(true);
+    setShowDeleteModal(true);
   };
 
   const handleDeleteConfirm = async () => {
@@ -37,11 +40,39 @@ export default function Home() {
       setPlaces((prev) =>
         prev ? prev.filter((p) => p.id !== selectedPlace.id) : prev
       );
-      setShowModal(false);
+      setShowDeleteModal(false);
       setSelectedPlace(null);
     } catch (err: any) {
       setError(err.message);
-      setShowModal(false);
+      setShowDeleteModal(false);
+      setSelectedPlace(null);
+    }
+  };
+
+  const handleUpdateClick = (place: Place) => {
+    setSelectedPlace(place);
+    setShowUpdateModal(true);
+  };
+
+  const handleUpdateConfirm = async (updated: Place) => {
+    try {
+      const res = await fetch(
+        `http://localhost:7099/api/places/${updated.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updated),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to update place");
+      setPlaces((prev) =>
+        prev ? prev.map((p) => (p.id === updated.id ? updated : p)) : prev
+      );
+      setShowUpdateModal(false);
+      setSelectedPlace(null);
+    } catch (err: any) {
+      setError(err.message);
+      setShowUpdateModal(false);
       setSelectedPlace(null);
     }
   };
@@ -52,16 +83,29 @@ export default function Home() {
       {error && <p className="text-red-500">Error: {error}</p>}
       {!places && !error && <p>Loading...</p>}
       {places && (
-        <PlaceList places={places} onDeleteClick={handleDeleteClick} />
+        <PlaceList
+          places={places}
+          onDeleteClick={handleDeleteClick}
+          onUpdateClick={handleUpdateClick}
+        />
       )}
       <ConfirmModal
         place={selectedPlace}
-        show={showModal}
+        show={showDeleteModal}
         onCancel={() => {
-          setShowModal(false);
+          setShowDeleteModal(false);
           setSelectedPlace(null);
         }}
         onConfirm={handleDeleteConfirm}
+      />
+      <UpdateModal
+        place={selectedPlace}
+        show={showUpdateModal}
+        onCancel={() => {
+          setShowUpdateModal(false);
+          setSelectedPlace(null);
+        }}
+        onConfirm={handleUpdateConfirm}
       />
     </main>
   );
