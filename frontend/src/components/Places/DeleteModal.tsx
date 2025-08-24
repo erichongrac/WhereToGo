@@ -7,7 +7,7 @@ type Props = {
   onConfirm: () => void;
 };
 
-export default function ConfirmModal({
+export default function DeleteModal({
   place,
   show,
   onCancel,
